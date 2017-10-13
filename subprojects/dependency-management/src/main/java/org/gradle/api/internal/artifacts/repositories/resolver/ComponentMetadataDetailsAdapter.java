@@ -15,23 +15,37 @@
  */
 package org.gradle.api.internal.artifacts.repositories.resolver;
 
+import org.gradle.api.artifacts.ComponentDependenciesMetadataDetails;
+import org.gradle.api.artifacts.ComponentDependencyMetadataDetails;
 import org.gradle.api.artifacts.ComponentMetadataDetails;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.internal.component.external.model.MutableModuleComponentResolveMetadata;
+import org.gradle.internal.component.model.DependencyMetadata;
+import org.gradle.internal.reflect.Instantiator;
+import org.gradle.internal.typeconversion.NotationParser;
 
 import java.util.List;
 
 public class ComponentMetadataDetailsAdapter implements ComponentMetadataDetails {
     private final MutableModuleComponentResolveMetadata metadata;
+    private final List<DependencyMetadata> dependenciesMetadata;
+    private final Instantiator instantiator;
+    private final NotationParser<Object, ComponentDependencyMetadataDetails> dependencyMetadataNotationParser;
+    private ComponentDependenciesMetadataDetails componentDependenciesMetadataDetails;
 
-    public ComponentMetadataDetailsAdapter(MutableModuleComponentResolveMetadata metadata) {
+    public ComponentMetadataDetailsAdapter(MutableModuleComponentResolveMetadata metadata, List<DependencyMetadata> dependenciesMetadata, Instantiator instantiator, NotationParser<Object, ComponentDependencyMetadataDetails> dependencyMetadataNotationParser) {
         this.metadata = metadata;
+        this.dependenciesMetadata = dependenciesMetadata;
+        this.instantiator = instantiator;
+        this.dependencyMetadataNotationParser = dependencyMetadataNotationParser;
     }
 
+    @Override
     public ModuleVersionIdentifier getId() {
         return metadata.getId();
     }
 
+    @Override
     public boolean isChanging() {
         return metadata.isChanging();
     }
@@ -40,19 +54,32 @@ public class ComponentMetadataDetailsAdapter implements ComponentMetadataDetails
         return metadata.getStatus();
     }
 
+    @Override
     public List<String> getStatusScheme() {
         return metadata.getStatusScheme();
     }
 
+    @Override
     public void setChanging(boolean changing) {
         metadata.setChanging(changing);
     }
 
+    @Override
     public void setStatus(String status) {
         metadata.setStatus(status);
     }
 
+    @Override
     public void setStatusScheme(List<String> statusScheme) {
         metadata.setStatusScheme(statusScheme);
+    }
+
+    @Override
+    public ComponentDependenciesMetadataDetails getDependencies() {
+        if (componentDependenciesMetadataDetails == null) {
+            componentDependenciesMetadataDetails = instantiator.newInstance(ComponentDependenciesMetadataDetailsAdapter.class,
+                dependenciesMetadata, dependencyMetadataNotationParser);
+        }
+        return componentDependenciesMetadataDetails;
     }
 }

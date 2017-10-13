@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.InvalidUserCodeException;
+import org.gradle.api.artifacts.ComponentDependencyMetadataDetails;
 import org.gradle.api.artifacts.ComponentMetadataDetails;
 import org.gradle.api.artifacts.ModuleIdentifier;
 import org.gradle.api.artifacts.dsl.ComponentMetadataHandler;
@@ -28,12 +29,14 @@ import org.gradle.api.internal.artifacts.ComponentMetadataProcessor;
 import org.gradle.api.internal.artifacts.ImmutableModuleIdentifierFactory;
 import org.gradle.api.internal.artifacts.ivyservice.DefaultIvyModuleDescriptor;
 import org.gradle.api.internal.artifacts.repositories.resolver.ComponentMetadataDetailsAdapter;
+import org.gradle.api.internal.notations.DependencyMetadataNotationParser;
 import org.gradle.api.internal.notations.ModuleIdentifierNotationConverter;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.specs.Specs;
 import org.gradle.internal.component.external.model.IvyModuleResolveMetadata;
 import org.gradle.internal.component.external.model.ModuleComponentResolveMetadata;
 import org.gradle.internal.component.external.model.MutableModuleComponentResolveMetadata;
+import org.gradle.internal.component.model.DependencyMetadata;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.resolve.ModuleVersionResolveException;
 import org.gradle.internal.rules.DefaultRuleActionAdapter;
@@ -60,6 +63,7 @@ public class DefaultComponentMetadataHandler implements ComponentMetadataHandler
     private final Set<SpecRuleAction<? super ComponentMetadataDetails>> rules = Sets.newLinkedHashSet();
     private final RuleActionAdapter<ComponentMetadataDetails> ruleActionAdapter;
     private final NotationParser<Object, ModuleIdentifier> moduleIdentifierNotationParser;
+    private final NotationParser<Object, ComponentDependencyMetadataDetails> dependencyMetadataNotationParser;
 
     public DefaultComponentMetadataHandler(Instantiator instantiator, RuleActionAdapter<ComponentMetadataDetails> ruleActionAdapter, ImmutableModuleIdentifierFactory moduleIdentifierFactory) {
         this.instantiator = instantiator;
@@ -68,6 +72,7 @@ public class DefaultComponentMetadataHandler implements ComponentMetadataHandler
             .toType(ModuleIdentifier.class)
             .converter(new ModuleIdentifierNotationConverter(moduleIdentifierFactory))
             .toComposite();
+        this.dependencyMetadataNotationParser = DependencyMetadataNotationParser.parser(instantiator);
     }
 
     public DefaultComponentMetadataHandler(Instantiator instantiator, ImmutableModuleIdentifierFactory moduleIdentifierFactory) {
@@ -131,8 +136,10 @@ public class DefaultComponentMetadataHandler implements ComponentMetadataHandler
             updatedMetadata = metadata;
         } else {
             MutableModuleComponentResolveMetadata mutableMetadata = metadata.asMutable();
-            ComponentMetadataDetails details = instantiator.newInstance(ComponentMetadataDetailsAdapter.class, mutableMetadata);
+            List<DependencyMetadata> mutableDependencies = Lists.newArrayList(metadata.getDependencies());
+            ComponentMetadataDetails details = instantiator.newInstance(ComponentMetadataDetailsAdapter.class, mutableMetadata, mutableDependencies, instantiator, dependencyMetadataNotationParser);
             processAllRules(metadata, details);
+            mutableMetadata.setDependencies(mutableDependencies);
             updatedMetadata = mutableMetadata.asImmutable();
         }
 

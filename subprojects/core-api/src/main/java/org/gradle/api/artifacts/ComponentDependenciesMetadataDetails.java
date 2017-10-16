@@ -22,19 +22,44 @@ import org.gradle.api.Incubating;
 import java.util.Collection;
 import java.util.Map;
 
-
 /**
+ * Describes the dependencies declared in a resolved component's metadata, which typically originate from
+ * a component descriptor (Ivy file, Maven POM). This interface can be used to adjust the dependencies
+ * of a published component via metadata rules (see {@link org.gradle.api.artifacts.dsl.ComponentMetadataHandler}.
+ *
  * @since 4.4
  */
 @Incubating
 public interface ComponentDependenciesMetadataDetails extends Collection<ComponentDependencyMetadata> {
 
+    /**
+     * Add a dependency using the string notation: <code><i>group</i>:<i>name</i>:<i>version</i></code>.
+     *
+     * @param dependencyNotation the dependency
+     */
     void add(CharSequence dependencyNotation);
 
+    /**
+     * Add a dependency using the map notation: <code>group: <i>group</i>, name: <i>name</i>, version: <i>version</i></code>.
+     *
+     * @param dependencyNotation the dependency
+     */
     void add(Map<String, String> dependencyNotation);
 
+    /**
+     * Add a dependency using the string notation: <code><i>group</i>:<i>name</i>:<i>version</i></code>.
+     *
+     * @param dependencyNotation the dependency
+     * @param configureAction action to configure details of the dependency - see {@link ComponentDependencyMetadataDetails}
+     */
     void add(String dependencyNotation, Action<ComponentDependencyMetadataDetails> configureAction);
 
+    /**
+     * Add a dependency using the map notation: <code>group: <i>group</i>, name: <i>name</i>, version: <i>version</i></code>.
+     *
+     * @param dependencyNotation the dependency
+     * @param configureAction action to configure details of the dependency - see {@link ComponentDependencyMetadataDetails}
+     */
     void add(Map<String, String> dependencyNotation, Action<ComponentDependencyMetadataDetails> configureAction);
 
 }

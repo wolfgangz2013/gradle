@@ -54,10 +54,9 @@ public interface ComponentMetadataDetails extends ComponentMetadata {
     void setStatusScheme(List<String> statusScheme);
 
     /**
-     * @return list of dependencies that can be modified
+     * Returns the list of dependencies that can be modified.
      *
      * @since 4.4
      */
-    @Incubating
     ComponentDependenciesMetadataDetails getDependencies();
 }

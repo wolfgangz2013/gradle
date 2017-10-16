@@ -19,6 +19,9 @@ package org.gradle.api.artifacts;
 import org.gradle.api.Incubating;
 
 /**
+ * Provides a read-only view on a dependency declared in a resolved component's metadata, which typically originates from
+ * a component descriptor (Ivy file, Maven POM).
+ *
  * @since 4.4
  */
 @Incubating

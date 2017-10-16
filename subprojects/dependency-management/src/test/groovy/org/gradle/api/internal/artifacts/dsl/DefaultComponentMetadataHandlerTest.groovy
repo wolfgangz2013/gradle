@@ -417,6 +417,21 @@ class DefaultComponentMetadataHandlerTest extends Specification {
         "org.gradle" | "lib" | false
     }
 
+    def "rules do not modify the original dependency list"() {
+        def metadata = mavenMetadata()
+
+        handler.all { ComponentMetadataDetails details ->
+            details.dependencies.add("group:module2:version")
+        }
+
+        when:
+        def updatedMetadata = handler.processMetadata(metadata.asImmutable())
+
+        then:
+        metadata.dependencies.size() == 0
+        updatedMetadata.dependencies.size() == 1
+    }
+
     private DefaultMutableIvyModuleResolveMetadata ivyMetadata() {
         def metadata = new DefaultMutableIvyModuleResolveMetadata(DefaultModuleVersionIdentifier.newId("group", "module", "version"), DefaultModuleComponentIdentifier.newId("group", "module", "version"))
         metadata.status = "integration"

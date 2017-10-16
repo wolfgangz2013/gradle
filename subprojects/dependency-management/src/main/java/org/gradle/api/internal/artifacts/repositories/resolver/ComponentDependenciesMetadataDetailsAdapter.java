@@ -33,6 +33,7 @@ import org.gradle.internal.component.model.IvyArtifactName;
 import org.gradle.internal.component.model.LocalComponentDependencyMetadata;
 import org.gradle.internal.typeconversion.NotationParser;
 
+import javax.annotation.Nullable;
 import java.util.AbstractList;
 import java.util.Collections;
 import java.util.List;
@@ -71,9 +72,30 @@ public class ComponentDependenciesMetadataDetailsAdapter extends AbstractList<Co
     }
 
     @Override
-    public void add(Object dependencyNotation, Action<ComponentDependencyMetadataDetails> configureAction) {
+    public void add(CharSequence dependencyNotation) {
+        doAdd(dependencyNotation, null);
+    }
+
+    @Override
+    public void add(Map<String, String> dependencyNotation) {
+        doAdd(dependencyNotation, null);
+    }
+
+    @Override
+    public void add(String dependencyNotation, Action<ComponentDependencyMetadataDetails> configureAction) {
+        doAdd(dependencyNotation, configureAction);
+    }
+
+    @Override
+    public void add(Map<String, String> dependencyNotation, Action<ComponentDependencyMetadataDetails> configureAction) {
+        doAdd(dependencyNotation, configureAction);
+    }
+
+    private void doAdd(Object dependencyNotation, @Nullable Action<ComponentDependencyMetadataDetails> configureAction) {
         ComponentDependencyMetadataDetails componentDependencyMetadataDetails = dependencyMetadataNotationParser.parseNotation(dependencyNotation);
-        configureAction.execute(componentDependencyMetadataDetails);
+        if (configureAction != null) {
+            configureAction.execute(componentDependencyMetadataDetails);
+        }
         dependenciesMetadata.add(toDependencyMetadata(componentDependencyMetadataDetails));
     }
 

@@ -19,15 +19,22 @@ package org.gradle.api.artifacts;
 import org.gradle.api.Action;
 import org.gradle.api.Incubating;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
 
 
 /**
  * @since 4.4
  */
 @Incubating
-public interface ComponentDependenciesMetadataDetails extends List<ComponentDependencyMetadata> {
+public interface ComponentDependenciesMetadataDetails extends Collection<ComponentDependencyMetadata> {
 
-    void add(Object dependencyNotation, Action<ComponentDependencyMetadataDetails> configureAction);
+    void add(CharSequence dependencyNotation);
+
+    void add(Map<String, String> dependencyNotation);
+
+    void add(String dependencyNotation, Action<ComponentDependencyMetadataDetails> configureAction);
+
+    void add(Map<String, String> dependencyNotation, Action<ComponentDependencyMetadataDetails> configureAction);
 
 }

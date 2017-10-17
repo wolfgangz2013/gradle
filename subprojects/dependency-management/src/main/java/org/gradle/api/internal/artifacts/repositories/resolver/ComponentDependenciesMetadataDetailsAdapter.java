@@ -96,7 +96,18 @@ public class ComponentDependenciesMetadataDetailsAdapter extends AbstractList<Co
         if (configureAction != null) {
             configureAction.execute(componentDependencyMetadataDetails);
         }
+        maybeRemoveExistingDependency(componentDependencyMetadataDetails);
         dependenciesMetadata.add(toDependencyMetadata(componentDependencyMetadataDetails));
+    }
+
+    private void maybeRemoveExistingDependency(ComponentDependencyMetadataDetails newDependency) {
+        for (int index = 0; index < dependenciesMetadata.size(); index++) {
+            DependencyMetadata dependency = dependenciesMetadata.get(index);
+            if (newDependency.getName().equals(dependency.getRequested().getName()) && newDependency.getGroup().equals(dependency.getRequested().getGroup())) {
+                remove(index);
+                return;
+            }
+        }
     }
 
     private DependencyMetadata toDependencyMetadata(ComponentDependencyMetadataDetails details) {

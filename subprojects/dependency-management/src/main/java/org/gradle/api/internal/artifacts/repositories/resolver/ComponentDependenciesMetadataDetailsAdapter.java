@@ -72,7 +72,7 @@ public class ComponentDependenciesMetadataDetailsAdapter extends AbstractList<Co
     }
 
     @Override
-    public void add(CharSequence dependencyNotation) {
+    public void add(String dependencyNotation) {
         doAdd(dependencyNotation, null);
     }
 

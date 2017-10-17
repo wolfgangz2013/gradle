@@ -37,7 +37,7 @@ public interface ComponentDependenciesMetadataDetails extends Collection<Compone
      *
      * @param dependencyNotation the dependency
      */
-    void add(CharSequence dependencyNotation);
+    void add(String dependencyNotation);
 
     /**
      * Add a dependency using the map notation: <code>group: <i>group</i>, name: <i>name</i>, version: <i>version</i></code>.

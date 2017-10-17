@@ -16,11 +16,13 @@
 package org.gradle.integtests.resolve
 
 import org.gradle.integtests.fixtures.AbstractHttpDependencyResolutionTest
+import org.gradle.integtests.fixtures.resolve.ResolveTestFixture
 import org.gradle.test.fixtures.HttpRepository
 import org.gradle.test.fixtures.Module
 import spock.lang.Unroll
 
 abstract class ComponentMetadataRulesDependenciesIntegrationTest extends AbstractHttpDependencyResolutionTest {
+    def resolve = new ResolveTestFixture(buildFile)
     Module moduleA, moduleB
 
     abstract HttpRepository getRepo()
@@ -28,9 +30,13 @@ abstract class ComponentMetadataRulesDependenciesIntegrationTest extends Abstrac
     abstract String getRepoDeclaration()
 
     def setup() {
+        resolve.prepare()
         moduleA = repo.module("org.test", "moduleA").allowAll().publish()
         moduleB = repo.module("org.test", "moduleB").allowAll().publish()
 
+        settingsFile << """
+            rootProject.name = 'testproject'
+        """
         buildFile << """
             $repoDeclaration
             
@@ -40,17 +46,6 @@ abstract class ComponentMetadataRulesDependenciesIntegrationTest extends Abstrac
                 compile 'org.test:moduleA:1.0'
             }
         """
-    }
-
-    def resolveWithAssert(String... expectedModules) {
-        buildFile << """
-            task resolve {
-                doLast {
-                    assert configurations.compile.collect { it.name } == [ '${expectedModules.join("', '")}' ]
-                }
-            }
-        """
-        succeeds 'resolve'
     }
 
     def dependsOn(Module module, Module dependency) {
@@ -71,7 +66,14 @@ abstract class ComponentMetadataRulesDependenciesIntegrationTest extends Abstrac
         """
 
         then:
-        resolveWithAssert('moduleA-1.0.jar', 'moduleB-1.0.jar')
+        succeeds 'checkDep'
+        resolve.expectGraph {
+            root(':', ':testproject:') {
+                module('org.test:moduleA:1.0') {
+                    module('org.test:moduleB:1.0')
+                }
+            }
+        }
 
         where:
         notation | dependendy
@@ -97,7 +99,16 @@ abstract class ComponentMetadataRulesDependenciesIntegrationTest extends Abstrac
         """
 
         then:
-        resolveWithAssert('moduleA-1.0.jar', 'moduleB-1.0.jar')
+        succeeds 'checkDep'
+        resolve.expectGraph {
+            root(':', ':testproject:') {
+                module('org.test:moduleA:1.0') {
+                    module('org.test:moduleB:1.0') {
+                        module('org.test:moduleB:1.0') //transitive = true
+                    }
+                }
+            }
+        }
 
         where:
         notation | dependendy
@@ -121,7 +132,12 @@ abstract class ComponentMetadataRulesDependenciesIntegrationTest extends Abstrac
         """
 
         then:
-        resolveWithAssert('moduleA-1.0.jar')
+        succeeds 'checkDep'
+        resolve.expectGraph {
+            root(':', ':testproject:') {
+                module('org.test:moduleA:1.0')
+            }
+        }
     }
 
     def "dependency modifications are visible in the next rule"() {
@@ -145,6 +161,11 @@ abstract class ComponentMetadataRulesDependenciesIntegrationTest extends Abstrac
         """
 
         then:
-        resolveWithAssert('moduleA-1.0.jar')
+        succeeds 'checkDep'
+        resolve.expectGraph {
+            root(':', ':testproject:') {
+                module('org.test:moduleA:1.0')
+            }
+        }
     }
 }

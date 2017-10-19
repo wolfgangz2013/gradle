@@ -47,7 +47,7 @@ public class SwiftCompile extends AbstractNativeCompileTask {
     }
 
     @Override
-    protected NativeCompileSpec createCompileSpec() {
+    public NativeCompileSpec createCompileSpec() {
         SwiftCompileSpec spec = new DefaultSwiftCompileSpec();
         spec.setModuleName(moduleName.getOrNull());
         return spec;

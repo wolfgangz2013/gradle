@@ -19,6 +19,7 @@ package org.gradle.language.cpp
 import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.nativeplatform.fixtures.AvailableToolChains
 import org.gradle.nativeplatform.fixtures.app.CppHelloWorldApp
+import org.junit.Assume
 import spock.lang.Unroll
 
 import static org.gradle.language.cpp.AbstractCppInstalledToolChainIntegrationTest.worksWithCppPlugin
@@ -108,6 +109,7 @@ class CppToolChainChangesIntegrationTest extends AbstractIntegrationSpec {
         def availableToolChains = AvailableToolChains.toolChains.findAll {
             it.available && worksWithCppPlugin(it) && !(it instanceof AvailableToolChains.InstalledSwiftc)
         }
+        Assume.assumeTrue("At least two toolchains available", availableToolChains.size() > 1)
         int numberOfToolChains = availableToolChains.size()
         (0..<(numberOfToolChains - 1)).collectMany { first ->
             ((first+1)..<numberOfToolChains).collect { second ->

@@ -165,6 +165,11 @@
             "type": "org.gradle.api.tasks.testing.AbstractTestTask",
             "member": "Constructor org.gradle.api.tasks.testing.AbstractTestTask()",
             "acceptation": "Extracted super class out of Test which was already stable"
+        },
+        {
+            "type": "org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask",
+            "member": "Method org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask.getFileSystemSnapshotter()",
+            "acceptation": "Injected service"
         }
     ]
 }

@@ -120,7 +120,7 @@ abstract class ComponentMetadataRulesDependenciesIntegrationTest extends Abstrac
             dependencies {
                 components {
                     withModule('org.test:moduleA') {
-                        withVariantDependencies("compile") { dependencies ->
+                        withVariantDependencies("default") { dependencies ->
                             dependencies.add($dependency) {
                                 it.version = '1.0'
                             }
@@ -142,7 +142,7 @@ abstract class ComponentMetadataRulesDependenciesIntegrationTest extends Abstrac
 
         where:
         notation | dependency
-        "string" | "'org.test:moduleB'"
+        "string" | "'org.test:moduleB:1.0'"
         "map"    | "group: 'org.test', name: 'moduleB'"
     }
 

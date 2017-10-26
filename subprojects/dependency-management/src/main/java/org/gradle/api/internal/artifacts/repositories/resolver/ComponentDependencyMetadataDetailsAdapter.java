@@ -21,11 +21,7 @@ import org.gradle.api.artifacts.ComponentDependencyMetadataDetails;
 public class ComponentDependencyMetadataDetailsAdapter implements ComponentDependencyMetadataDetails {
     private final String group;
     private final String name;
-    private final String version;
-
-    private boolean changing;
-    private boolean force;
-    private boolean transitive;
+    private String version;
 
     public ComponentDependencyMetadataDetailsAdapter(String group, String name, String version) {
         this.group = group;
@@ -49,36 +45,8 @@ public class ComponentDependencyMetadataDetailsAdapter implements ComponentDepen
     }
 
     @Override
-    public boolean isChanging() {
-        return this.changing;
-    }
-
-    @Override
-    public ComponentDependencyMetadataDetails setChanging(boolean changing) {
-        this.changing = changing;
-        return this;
-    }
-
-
-    @Override
-    public boolean isTransitive() {
-        return this.transitive;
-    }
-
-    @Override
-    public ComponentDependencyMetadataDetails setTransitive(boolean transitive) {
-        this.transitive = transitive;
-        return this;
-    }
-
-    @Override
-    public boolean isForce() {
-        return this.force;
-    }
-
-    @Override
-    public ComponentDependencyMetadataDetails setForce(boolean force) {
-        this.force = force;
+    public ComponentDependencyMetadataDetails setVersion(String version) {
+        this.version = version;
         return this;
     }
 }

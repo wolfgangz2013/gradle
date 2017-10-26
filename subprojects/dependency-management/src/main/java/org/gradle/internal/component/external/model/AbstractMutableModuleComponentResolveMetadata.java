@@ -18,11 +18,13 @@ package org.gradle.internal.component.external.model;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.ComponentDependenciesMetadataDetails;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier;
 import org.gradle.internal.component.external.descriptor.Configuration;
-import org.gradle.internal.component.model.ConfigurationMetadata;
 import org.gradle.internal.component.model.DefaultIvyArtifactName;
 import org.gradle.internal.component.model.DependencyMetadata;
 import org.gradle.internal.component.model.IvyArtifactName;
@@ -53,6 +55,7 @@ abstract class AbstractMutableModuleComponentResolveMetadata<T extends DefaultCo
     @Nullable
     private ImmutableList<? extends ModuleComponentArtifactMetadata> artifactOverrides;
     private ImmutableMap<String, T> configurations;
+    protected final Map<String, Action<ComponentDependenciesMetadataDetails>> depActions = Maps.newHashMap();
 
     protected AbstractMutableModuleComponentResolveMetadata(ModuleVersionIdentifier id, ModuleComponentIdentifier componentIdentifier, List<? extends DependencyMetadata> dependencies) {
         this.componentId = componentIdentifier;
@@ -117,6 +120,7 @@ abstract class AbstractMutableModuleComponentResolveMetadata<T extends DefaultCo
         for (String configName : configurationsNames) {
             DefaultConfigurationMetadata configuration = populateConfigurationFromDescriptor(configName, configurationDefinitions, configurations);
             configuration.populateDependencies(dependencies);
+            configuration.setDependencyAction(depActions.get(configName));
         }
         return ImmutableMap.copyOf(configurations);
     }
@@ -215,6 +219,12 @@ abstract class AbstractMutableModuleComponentResolveMetadata<T extends DefaultCo
     public ModuleComponentArtifactMetadata artifact(String type, @Nullable String extension, @Nullable String classifier) {
         IvyArtifactName ivyArtifactName = new DefaultIvyArtifactName(getId().getName(), type, extension, classifier);
         return new DefaultModuleComponentArtifactMetadata(getComponentId(), ivyArtifactName);
+    }
+
+    @Override
+    public void withVariantDependencies(String name, Action<ComponentDependenciesMetadataDetails> action) {
+        depActions.put(name, action);
+        resetConfigurations();
     }
 
     @Nullable

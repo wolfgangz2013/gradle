@@ -21,27 +21,20 @@ import org.gradle.api.Action;
 import org.gradle.api.artifacts.ComponentDependenciesMetadataDetails;
 import org.gradle.api.artifacts.ComponentDependencyMetadata;
 import org.gradle.api.artifacts.ComponentDependencyMetadataDetails;
-import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleVersionSelector;
-import org.gradle.api.artifacts.component.ModuleComponentSelector;
 import org.gradle.api.internal.artifacts.DefaultModuleVersionSelector;
-import org.gradle.api.internal.attributes.ImmutableAttributes;
-import org.gradle.internal.component.external.model.DefaultModuleComponentSelector;
 import org.gradle.internal.component.model.DependencyMetadata;
-import org.gradle.internal.component.model.Exclude;
-import org.gradle.internal.component.model.IvyArtifactName;
-import org.gradle.internal.component.model.LocalComponentDependencyMetadata;
+import org.gradle.internal.component.model.GradleDependencyMetadata;
 import org.gradle.internal.typeconversion.NotationParser;
 
 import javax.annotation.Nullable;
 import java.util.AbstractList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class ComponentDependenciesMetadataDetailsAdapter extends AbstractList<ComponentDependencyMetadata> implements ComponentDependenciesMetadataDetails {
     private final List<DependencyMetadata> dependenciesMetadata;
-    private final Map<Integer, ComponentDependencyMetadata> componentDependencyMetadataAdapters;
+    private final Map<Integer, ComponentDependencyMetadataDetails> componentDependencyMetadataAdapters;
     private final NotationParser<Object, ComponentDependencyMetadataDetails> dependencyMetadataNotationParser;
 
     public ComponentDependenciesMetadataDetailsAdapter(List<DependencyMetadata> dependenciesMetadata, NotationParser<Object, ComponentDependencyMetadataDetails> dependencyMetadataNotationParser) {
@@ -51,9 +44,9 @@ public class ComponentDependenciesMetadataDetailsAdapter extends AbstractList<Co
     }
 
     @Override
-    public ComponentDependencyMetadata get(int index) {
+    public ComponentDependencyMetadataDetails get(int index) {
         if (!componentDependencyMetadataAdapters.containsKey(index)) {
-            componentDependencyMetadataAdapters.put(index, new ComponentDependencyMetadataAdapter(dependenciesMetadata.get(index)));
+            componentDependencyMetadataAdapters.put(index, new IndexedComponentDependencyMetadataDetails(index));
         }
         return componentDependencyMetadataAdapters.get(index);
     }
@@ -67,7 +60,7 @@ public class ComponentDependenciesMetadataDetailsAdapter extends AbstractList<Co
     public ComponentDependencyMetadata remove(int index) {
         ComponentDependencyMetadata componentDependencyMetadata = get(index);
         dependenciesMetadata.remove(index);
-        componentDependencyMetadataAdapters.remove(index);
+        componentDependencyMetadataAdapters.clear();
         return componentDependencyMetadata;
     }
 
@@ -112,11 +105,41 @@ public class ComponentDependenciesMetadataDetailsAdapter extends AbstractList<Co
 
     private DependencyMetadata toDependencyMetadata(ComponentDependencyMetadataDetails details) {
         ModuleVersionSelector requested = new DefaultModuleVersionSelector(details.getGroup(), details.getName(), details.getVersion());
-        ModuleComponentSelector selector = DefaultModuleComponentSelector.newSelector(requested);
+        return new GradleDependencyMetadata(requested);
+    }
 
-        return new LocalComponentDependencyMetadata(selector, requested,
-            Dependency.DEFAULT_CONFIGURATION, ImmutableAttributes.EMPTY, Dependency.DEFAULT_CONFIGURATION,
-            Collections.<IvyArtifactName>emptySet(), Collections.<Exclude>emptyList(),
-            details.isForce(), details.isChanging(), details.isTransitive());
+    private class IndexedComponentDependencyMetadataDetails implements ComponentDependencyMetadataDetails {
+        private final int index;
+
+        private IndexedComponentDependencyMetadataDetails(int index) {
+            this.index = index;
+        }
+
+        private DependencyMetadata get() {
+            return dependenciesMetadata.get(index);
+        }
+
+        @Override
+        public ComponentDependencyMetadataDetails setVersion(String version) {
+            DependencyMetadata original = get();
+            DependencyMetadata newDep = original.withRequestedVersion(version);
+            dependenciesMetadata.set(index, newDep);
+            return this;
+        }
+
+        @Override
+        public String getGroup() {
+            return get().getRequested().getGroup();
+        }
+
+        @Override
+        public String getName() {
+            return get().getRequested().getName();
+        }
+
+        @Override
+        public String getVersion() {
+            return get().getRequested().getVersion();
+        }
     }
 }

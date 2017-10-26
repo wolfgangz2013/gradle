@@ -159,7 +159,7 @@ public class DefaultMutableMavenModuleResolveMetadata extends AbstractMutableMod
             } else {
                 List<VariantBackedConfigurationMetadata> configurations = new ArrayList<VariantBackedConfigurationMetadata>(variants.size());
                 for (ComponentVariant variant : variants) {
-                    configurations.add(new VariantBackedConfigurationMetadata(getComponentId(), variant));
+                    configurations.add(new VariantBackedConfigurationMetadata(getComponentId(), variant, depActions.get(variant.getName())));
                 }
                 graphVariants = ImmutableList.copyOf(configurations);
             }

@@ -15,6 +15,7 @@
  */
 package org.gradle.api.artifacts;
 
+import org.gradle.api.Action;
 import org.gradle.api.Incubating;
 import org.gradle.api.NonExtensible;
 
@@ -53,10 +54,5 @@ public interface ComponentMetadataDetails extends ComponentMetadata {
      */
     void setStatusScheme(List<String> statusScheme);
 
-    /**
-     * Returns the list of dependencies that can be modified.
-     *
-     * @since 4.4
-     */
-    ComponentDependenciesMetadataDetails getDependencies();
+    void withVariantDependencies(String name, Action<ComponentDependenciesMetadataDetails> action);
 }

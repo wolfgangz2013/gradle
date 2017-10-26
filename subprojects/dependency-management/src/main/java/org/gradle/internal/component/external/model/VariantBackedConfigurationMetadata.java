@@ -18,11 +18,15 @@ package org.gradle.internal.component.external.model;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.ComponentDependenciesMetadataDetails;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.internal.artifacts.DefaultModuleVersionSelector;
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.excludes.ModuleExclusion;
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.excludes.ModuleExclusions;
+import org.gradle.api.internal.artifacts.repositories.resolver.ComponentDependenciesMetadataDetailsAdapter;
 import org.gradle.api.internal.attributes.ImmutableAttributes;
+import org.gradle.api.internal.notations.DependencyMetadataNotationParser;
 import org.gradle.internal.Describables;
 import org.gradle.internal.DisplayName;
 import org.gradle.internal.component.model.ComponentArtifactMetadata;
@@ -31,6 +35,7 @@ import org.gradle.internal.component.model.DependencyMetadata;
 import org.gradle.internal.component.model.GradleDependencyMetadata;
 import org.gradle.internal.component.model.IvyArtifactName;
 import org.gradle.internal.component.model.VariantMetadata;
+import org.gradle.internal.reflect.DirectInstantiator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,8 +49,9 @@ class VariantBackedConfigurationMetadata implements ConfigurationMetadata {
     private final ModuleComponentIdentifier componentId;
     private final ComponentVariant variant;
     private final ImmutableList<GradleDependencyMetadata> dependencies;
+    private final Action<ComponentDependenciesMetadataDetails> action;
 
-    VariantBackedConfigurationMetadata(ModuleComponentIdentifier componentId, ComponentVariant variant) {
+    VariantBackedConfigurationMetadata(ModuleComponentIdentifier componentId, ComponentVariant variant, Action<ComponentDependenciesMetadataDetails> action) {
         this.componentId = componentId;
         this.variant = variant;
         List<GradleDependencyMetadata> dependencies = new ArrayList<GradleDependencyMetadata>(variant.getDependencies().size());
@@ -53,6 +59,7 @@ class VariantBackedConfigurationMetadata implements ConfigurationMetadata {
             dependencies.add(new GradleDependencyMetadata(DefaultModuleVersionSelector.newSelector(dependency.getGroup(), dependency.getModule(), dependency.getVersion())));
         }
         this.dependencies = ImmutableList.copyOf(dependencies);
+        this.action = action;
     }
 
     @Override
@@ -122,6 +129,8 @@ class VariantBackedConfigurationMetadata implements ConfigurationMetadata {
 
     @Override
     public List<? extends DependencyMetadata> getDependencies() {
-        return dependencies;
+        List<DependencyMetadata> copy = new ArrayList<DependencyMetadata>(dependencies);
+        action.execute(new ComponentDependenciesMetadataDetailsAdapter(copy, DependencyMetadataNotationParser.parser(DirectInstantiator.INSTANCE)));
+        return copy;
     }
 }

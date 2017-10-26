@@ -28,31 +28,5 @@ import org.gradle.api.Incubating;
 @Incubating
 public interface ComponentDependencyMetadataDetails extends ComponentDependencyMetadata {
 
-    /**
-     * Sets whether or not Gradle should always check for a change in the remote repository. If set to true, Gradle will
-     * check the remote repository even if a dependency with the same version is already in the local cache. Defaults to
-     * false.
-     *
-     * @param changing Whether or not Gradle should always check for a change in the remote repository
-     * @return this
-     */
-    ComponentDependencyMetadataDetails setChanging(boolean changing);
-
-    /**
-     * Sets whether this dependency should be resolved including or excluding its transitive dependencies. The artifacts
-     * belonging to this dependency might themselves have dependencies on other artifacts. The latter are called
-     * transitive dependencies.
-     *
-     * @param transitive Whether transitive dependencies should be resolved.
-     * @return this
-     */
-    ComponentDependencyMetadataDetails setTransitive(boolean transitive);
-
-    /**
-     * Sets whether or not the version of this dependency should be enforced in the case of version conflicts.
-     *
-     * @param force Whether to force this version or not.
-     * @return this
-     */
-    ComponentDependencyMetadataDetails setForce(boolean force);
+    ComponentDependencyMetadataDetails setVersion(String version);
 }

@@ -45,19 +45,4 @@ public interface ComponentDependencyMetadata {
      */
     String getVersion();
 
-    /**
-     * Returns whether or not Gradle should always check for a change in the remote repository.
-     */
-    boolean isChanging();
-
-    /**
-     * Returns whether this dependency should be resolved including or excluding its transitive dependencies.
-     */
-    boolean isTransitive();
-
-    /**
-     * Returns whether or not the version of this dependency should be enforced in the case of version conflicts.
-     */
-    boolean isForce();
-
 }

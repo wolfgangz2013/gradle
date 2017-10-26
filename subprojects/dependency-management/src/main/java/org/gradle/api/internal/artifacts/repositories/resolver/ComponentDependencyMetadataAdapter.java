@@ -40,19 +40,4 @@ public class ComponentDependencyMetadataAdapter implements ComponentDependencyMe
     public String getVersion() {
         return dependencyMetadata.getRequested().getVersion();
     }
-
-    @Override
-    public boolean isChanging() {
-        return dependencyMetadata.isChanging();
-    }
-
-    @Override
-    public boolean isTransitive() {
-        return dependencyMetadata.isTransitive();
-    }
-
-    @Override
-    public boolean isForce() {
-        return dependencyMetadata.isForce();
-    }
 }

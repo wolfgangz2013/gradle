@@ -17,6 +17,8 @@ package org.gradle.internal.component.external.model;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.ComponentDependenciesMetadataDetails;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.internal.component.model.ConfigurationMetadata;
@@ -99,4 +101,7 @@ public interface MutableModuleComponentResolveMetadata {
      * Creates an artifact for this module. Does not mutate this metadata.
      */
     ModuleComponentArtifactMetadata artifact(String type, @Nullable String extension, @Nullable String classifier);
+
+    void withVariantDependencies(String name, Action<ComponentDependenciesMetadataDetails> action);
+
 }

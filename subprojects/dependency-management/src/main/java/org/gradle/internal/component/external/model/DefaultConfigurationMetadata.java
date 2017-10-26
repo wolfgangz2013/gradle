@@ -18,8 +18,12 @@ package org.gradle.internal.component.external.model;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.ComponentDependenciesMetadataDetails;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
+import org.gradle.api.internal.artifacts.repositories.resolver.ComponentDependenciesMetadataDetailsAdapter;
 import org.gradle.api.internal.attributes.ImmutableAttributes;
+import org.gradle.api.internal.notations.DependencyMetadataNotationParser;
 import org.gradle.internal.Describables;
 import org.gradle.internal.DisplayName;
 import org.gradle.internal.component.model.ConfigurationMetadata;
@@ -27,6 +31,7 @@ import org.gradle.internal.component.model.DefaultVariantMetadata;
 import org.gradle.internal.component.model.DependencyMetadata;
 import org.gradle.internal.component.model.IvyArtifactName;
 import org.gradle.internal.component.model.VariantMetadata;
+import org.gradle.internal.reflect.DirectInstantiator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,6 +52,7 @@ abstract class DefaultConfigurationMetadata implements ConfigurationMetadata {
     private final boolean transitive;
     private final boolean visible;
     private final List<String> hierarchy;
+    private Action<ComponentDependenciesMetadataDetails> dependencyAction;
 
     DefaultConfigurationMetadata(ModuleComponentIdentifier componentId, String name, boolean transitive, boolean visible, ImmutableList<? extends DefaultConfigurationMetadata> parents, ImmutableList<? extends ModuleComponentArtifactMetadata> artifacts) {
         this.componentId = componentId;
@@ -126,6 +132,11 @@ abstract class DefaultConfigurationMetadata implements ConfigurationMetadata {
 
     @Override
     public List<? extends DependencyMetadata> getDependencies() {
+        if (dependencyAction != null) {
+            List<DependencyMetadata> copy = new ArrayList<DependencyMetadata>(configDependencies);
+            dependencyAction.execute(new ComponentDependenciesMetadataDetailsAdapter(copy, DependencyMetadataNotationParser.parser(DirectInstantiator.INSTANCE)));
+            return copy;
+        }
         return configDependencies;
     }
 
@@ -172,5 +183,9 @@ abstract class DefaultConfigurationMetadata implements ConfigurationMetadata {
     @Override
     public ModuleComponentArtifactMetadata artifact(IvyArtifactName artifact) {
         return new DefaultModuleComponentArtifactMetadata(componentId, artifact);
+    }
+
+    public void setDependencyAction(Action<ComponentDependenciesMetadataDetails> dependencyAction) {
+        this.dependencyAction = dependencyAction;
     }
 }

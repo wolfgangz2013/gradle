@@ -15,6 +15,7 @@
  */
 package org.gradle.api.internal.artifacts.repositories.resolver;
 
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.ComponentDependenciesMetadataDetails;
 import org.gradle.api.artifacts.ComponentDependencyMetadataDetails;
 import org.gradle.api.artifacts.ComponentMetadataDetails;
@@ -75,11 +76,7 @@ public class ComponentMetadataDetailsAdapter implements ComponentMetadataDetails
     }
 
     @Override
-    public ComponentDependenciesMetadataDetails getDependencies() {
-        if (componentDependenciesMetadataDetails == null) {
-            componentDependenciesMetadataDetails = instantiator.newInstance(ComponentDependenciesMetadataDetailsAdapter.class,
-                dependenciesMetadata, dependencyMetadataNotationParser);
-        }
-        return componentDependenciesMetadataDetails;
+    public void withVariantDependencies(String name, Action<ComponentDependenciesMetadataDetails> action) {
+        metadata.withVariantDependencies(name, action);
     }
 }

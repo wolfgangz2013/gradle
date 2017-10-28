@@ -22,8 +22,10 @@ import org.gradle.api.Incubating;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -157,7 +159,14 @@ public class XCTestConventionPlugin implements Plugin<ProjectInternal> {
 
         SwiftCompile compileMain = tasks.withType(SwiftCompile.class).getByName("compileDebugSwift");
         SwiftCompile compileTest = tasks.withType(SwiftCompile.class).getByName("compileTestSwift");
-        compileTest.includes(compileMain.getObjectFileDir());
+        compileTest.includes(compileMain.getModuleFile().map(new Transformer<File, RegularFile>() {
+            @Override
+            public File transform(RegularFile file) {
+                return file.getAsFile().getParentFile();
+            }
+        }));
+        // TODO - infer this
+        compileTest.dependsOn(compileMain);
 
         SwiftComponent swiftComponent = project.getComponents().withType(SwiftComponent.class).getByName("main");
         AbstractLinkTask linkTest = tasks.withType(AbstractLinkTask.class).getByName("linkTest");

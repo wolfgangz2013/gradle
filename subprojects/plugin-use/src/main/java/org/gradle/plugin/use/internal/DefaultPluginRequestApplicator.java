@@ -166,7 +166,7 @@ public class DefaultPluginRequestApplicator implements PluginRequestApplicator {
     }
 
     private void addPluginArtifactRepositories(RepositoryHandler repositories) {
-        repositories.addAll(pluginRepositories);
+        repositories.addAll(0, pluginRepositories);
     }
 
     private void addMissingMavenRepositories(RepositoryHandler repositories, Set<String> repoUrls) {

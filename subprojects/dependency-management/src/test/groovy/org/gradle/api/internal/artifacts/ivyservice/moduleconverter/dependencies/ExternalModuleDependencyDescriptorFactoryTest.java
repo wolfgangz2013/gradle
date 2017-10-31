@@ -46,6 +46,7 @@ public class ExternalModuleDependencyDescriptorFactoryTest extends AbstractDepen
         assertThat(dependencyMetaData.getRequested().getGroup(), equalTo(""));
         assertThat(dependencyMetaData.getRequested().getName(), equalTo("gradle-core"));
         assertThat(dependencyMetaData.getRequested().getVersion(), equalTo(""));
+        assertThat(dependencyMetaData.getRequested().getVersionConstraint().getPreferredVersion(), equalTo(""));
     }
 
     @Test
@@ -61,6 +62,7 @@ public class ExternalModuleDependencyDescriptorFactoryTest extends AbstractDepen
         assertEquals(moduleDependency.getGroup(), dependencyMetaData.getRequested().getGroup());
         assertEquals(moduleDependency.getName(), dependencyMetaData.getRequested().getName());
         assertEquals(moduleDependency.getVersion(), dependencyMetaData.getRequested().getVersion());
+        assertEquals(moduleDependency.getVersionConstraint(), dependencyMetaData.getRequested().getVersionConstraint());
         assertDependencyDescriptorHasCommonFixtureValues(dependencyMetaData);
     }
 }

@@ -42,9 +42,7 @@ public interface ModuleVersionSelector {
      *
      * @return module version
      *
-     * @deprecated Use {@link #getVersionConstraint()} instead.
      */
-    @Deprecated
     String getVersion();
 
     /**

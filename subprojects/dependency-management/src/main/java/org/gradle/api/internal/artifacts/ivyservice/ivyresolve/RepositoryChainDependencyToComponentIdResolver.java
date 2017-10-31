@@ -57,10 +57,10 @@ public class RepositoryChainDependencyToComponentIdResolver implements Dependenc
             if (preferredSelector instanceof ExactVersionSelector) {
                 version = ((ExactVersionSelector) preferredSelector).getSelector();
             } else {
-                version = requested.getVersion();
+                version = requested.getVersionConstraint().getPreferredVersion();
             }
             DefaultModuleComponentIdentifier id = new DefaultModuleComponentIdentifier(requested.getGroup(), requested.getName(), version);
-            ModuleVersionIdentifier mvId = moduleIdentifierFactory.moduleWithVersion(targetModuleId, requested.getVersion());
+            ModuleVersionIdentifier mvId = moduleIdentifierFactory.moduleWithVersion(targetModuleId, requested.getVersionConstraint().getPreferredVersion());
             result.resolved(id, mvId);
         }
         if (result.hasResult()) {

@@ -33,6 +33,12 @@ public class DefaultModuleVersionSelector implements ModuleVersionSelector {
         setVersion(version);
     }
 
+    public DefaultModuleVersionSelector(String group, String name, VersionConstraint version) {
+        this.group = group;
+        this.name = name;
+        this.moduleVersionConstraint = version;
+    }
+
     public String getGroup() {
         return group;
     }
@@ -110,7 +116,7 @@ public class DefaultModuleVersionSelector implements ModuleVersionSelector {
         this.moduleVersionConstraint = prefersVersion;
     }
 
-    public static ModuleVersionSelector newSelector(String group, String name, String version) {
+    public static ModuleVersionSelector newSelector(String group, String name, VersionConstraint version) {
         return new DefaultModuleVersionSelector(group, name, version);
     }
 }

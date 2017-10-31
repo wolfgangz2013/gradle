@@ -18,6 +18,7 @@ package org.gradle.internal.component.external.model;
 
 import com.google.common.collect.ImmutableList;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
+import org.gradle.api.artifacts.VersionConstraint;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.parser.GradlePomModuleDescriptorBuilder;
 import org.gradle.api.internal.attributes.ImmutableAttributes;
@@ -197,8 +198,8 @@ public class DefaultMutableMavenModuleResolveMetadata extends AbstractMutableMod
         }
 
         @Override
-        public void addDependency(String group, String module, String version) {
-            dependencies.add(new DependencyImpl(group, module, version));
+        public void addDependency(String group, String module, VersionConstraint versionConstraint) {
+            dependencies.add(new DependencyImpl(group, module, versionConstraint));
         }
 
         @Override
@@ -230,12 +231,12 @@ public class DefaultMutableMavenModuleResolveMetadata extends AbstractMutableMod
     private static class DependencyImpl implements ComponentVariant.Dependency {
         private final String group;
         private final String module;
-        private final String version;
+        private final VersionConstraint versionConstraint;
 
-        DependencyImpl(String group, String module, String version) {
+        DependencyImpl(String group, String module, VersionConstraint versionConstraint) {
             this.group = group;
             this.module = module;
-            this.version = version;
+            this.versionConstraint = versionConstraint;
         }
 
         @Override
@@ -249,8 +250,8 @@ public class DefaultMutableMavenModuleResolveMetadata extends AbstractMutableMod
         }
 
         @Override
-        public String getVersion() {
-            return version;
+        public VersionConstraint getVersionConstraint() {
+            return versionConstraint;
         }
     }
 

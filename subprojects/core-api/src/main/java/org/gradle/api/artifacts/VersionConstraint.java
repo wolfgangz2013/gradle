@@ -18,6 +18,8 @@ package org.gradle.api.artifacts;
 import org.gradle.api.Incubating;
 import org.gradle.internal.HasInternalProtocol;
 
+import java.util.List;
+
 /**
  * Represents a constrained version. By default, when a dependency has a version number, it is assumed
  * that the version can be upgraded during conflict resolution (typically, version 1.15 can be upgraded to 1.16). However
@@ -49,4 +51,11 @@ public interface VersionConstraint {
      * @param version the strict version to be used for this module
      */
     void strictly(String version);
+
+    /**
+     * Returns the list of versions that this module rejects  (which may be exact versions, or ranges, anything that fits into a version string).
+     *
+     * @return the list of rejected versions
+     */
+    List<String> getRejectedVersions();
 }

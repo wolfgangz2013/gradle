@@ -19,6 +19,7 @@ import com.google.common.base.Joiner;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.ModuleVersionSelector;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
 import org.gradle.api.internal.artifacts.DependencyResolutionServices;
@@ -51,7 +52,7 @@ public class ArtifactRepositoriesPluginResolver implements PluginResolver {
 
     @Override
     public void resolve(PluginRequestInternal pluginRequest, PluginResolutionResult result) throws InvalidPluginRequestException {
-        Dependency markerDependency = getMarkerDependency(pluginRequest);
+        ModuleDependency markerDependency = getMarkerDependency(pluginRequest);
         String markerVersion = markerDependency.getVersion();
         if (markerVersion == null) {
             handleNotFound(result, "plugin dependency must include a version number for this source");
@@ -95,16 +96,16 @@ public class ArtifactRepositoriesPluginResolver implements PluginResolver {
     }
 
     /*
-     * Checks whether the implementation artifact exists in the backing artifacts repositories.
+     * Checks whether the plugin marker artifact exists in the backing artifacts repositories.
      */
-    private boolean exists(Dependency dependency) {
+    private boolean exists(ModuleDependency dependency) {
         ConfigurationContainer configurations = resolution.getConfigurationContainer();
-        Configuration configuration = configurations.detachedConfiguration(dependency);
+        Configuration configuration = configurations.detachedConfiguration(dependency.copy().setTransitive(false));
         configuration.setTransitive(false);
         return !configuration.getResolvedConfiguration().hasError();
     }
 
-    private Dependency getMarkerDependency(PluginRequestInternal pluginRequest) {
+    private ModuleDependency getMarkerDependency(PluginRequestInternal pluginRequest) {
         ModuleVersionSelector selector = pluginRequest.getModule();
         if (selector == null) {
             String id = pluginRequest.getId().getId();
